@@ -4,6 +4,9 @@ FROM python:3.12-slim
 # Establecer el directorio de trabajo
 WORKDIR /app
 
+# Crear directorio para la base de datos
+RUN mkdir -p /app/instance
+
 # Instalar dependencias del sistema necesarias
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
@@ -18,8 +21,8 @@ RUN pip install gunicorn  # Servidor de producción para Flask
 # Copiar todo el contenido del proyecto
 COPY . .
 
-# Exponer el puerto que exige Hugging Face
-EXPOSE 7860
+# Exponer el puerto predeterminado de Render
+EXPOSE 10000
 
-# Comando para ejecutar la aplicación con Gunicorn en el puerto 7860
-CMD ["gunicorn", "--bind", "0.0.0.0:7860", "run:app"]
+# Comando para ejecutar la aplicación con Gunicorn en el puerto 10000
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "run:app"]
