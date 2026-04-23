@@ -18,8 +18,8 @@ RUN pip install gunicorn  # Servidor de producción para Flask
 # Copiar todo el contenido del proyecto
 COPY . .
 
-# Exponer el puerto que usará Flask
-EXPOSE 5000
+# Exponer el puerto que exige Hugging Face
+EXPOSE 7860
 
-# Comando para ejecutar la aplicación con Gunicorn (Producción)
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
+# Comando para ejecutar la aplicación con Gunicorn en el puerto 7860
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "run:app"]
