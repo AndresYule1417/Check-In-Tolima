@@ -9,3 +9,4 @@ email-validator==2.1.1
 requests==2.31.0
 itsdangerous==2.2.0
 gunicorn==25.3.0
+psycopg2-binary==2.9.9
