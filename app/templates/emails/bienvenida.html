@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Bienvenido a Check-In Viajes Tolima! 🌿</title>
+    <style>
+        /* Paleta de colores Tolima */
+        :root {
+            --verde-tolima: #2C6B3A;
+            --miel-dorado: #C8860A;
+            --tierra: #8B4513;
+            --cielo-azul: #1A5276;
+            --crema: #FDF6E3;
+            --bg-light: #F7F5F0;
+            --texto-dark: #1A1A1A;
+            --borde: #E8E4DC;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #F7F5F0;
+            color: #1A1A1A;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #E8E4DC;
+        }
+
+        .header {
+            background-color: #2C6B3A;
+            color: #ffffff;
+            padding: 32px 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-family: 'Urbanist', sans-serif;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .content {
+            padding: 32px 24px;
+        }
+
+        .content p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        .features {
+            background-color: #FDF6E3;
+            border-left: 4px solid #C8860A;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .features ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .features li {
+            margin-bottom: 8px;
+        }
+
+        .cta-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #C8860A;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-family: 'Urbanist', sans-serif;
+            font-size: 16px;
+        }
+
+        .footer {
+            background-color: #F7F5F0;
+            text-align: center;
+            padding: 24px;
+            font-size: 12px;
+            color: #666666;
+            border-top: 1px solid #E8E4DC;
+        }
+
+        .footer a {
+            color: #2C6B3A;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="email-container">
+        <!-- Encabezado -->
+        <div class="header">
+            <h1>Check-In Viajes Tolima</h1>
+            <p style="margin-top: 8px; opacity: 0.9; font-size: 14px;">Descubre el corazón de Colombia</p>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="content">
+            <p>¡Hola <strong>{{ usuario.nombre }}</strong>!</p>
+            
+            <p>Nos emociona darte la bienvenida a <strong>Check-In Viajes Tolima</strong>. Tu cuenta ha sido creada exitosamente y ahora eres parte de nuestra comunidad de viajeros listos para explorar los mejores destinos de nuestra región. 🌿</p>
+
+            <div class="features">
+                <p style="margin-top: 0; font-weight: 600; color: #1A1A1A;">¿Qué puedes hacer ahora?</p>
+                <ul>
+                    <li>Explorar nuestro <strong>Catálogo de Viajes</strong> con destinos únicos.</li>
+                    <li>Reservar aventuras, recorridos culturales y escapadas de descanso.</li>
+                    <li>Gestionar tus reservas y pagos de forma rápida y segura.</li>
+                </ul>
+            </div>
+
+            <p>Estamos aquí para asegurarnos de que tu próxima aventura sea inolvidable. Entra ahora y descubre tu próximo destino.</p>
+
+            <!-- Llamado a la acción (CTA) -->
+            <div class="cta-container">
+                <!-- Nota: Usamos url_for con _external=True para generar links completos en los correos -->
+                <a href="{{ url_for('viajes.catalogo', _external=True) }}" class="btn">Explorar Viajes Ahora</a>
+            </div>
+        </div>
+
+        <!-- Pie de página -->
+        <div class="footer">
+            <p>Has recibido este correo porque te has registrado en Check-In Viajes Tolima.</p>
+            <p>Si no fuiste tú, por favor ignora este correo.</p>
+            <p>
+                <!-- Enlace de desuscripción DEMO requerido en los drivers -->
+                <a href="{{ url_for('inicio', _external=True) }}nosotros">Cancelar suscripción (Demo)</a> | 
+                <a href="{{ url_for('inicio', _external=True) }}nosotros">Términos y Condiciones</a>
+            </p>
+            <p style="margin-top: 16px;">&copy; 2024 Check-In Viajes Tolima. Todos los derechos reservados.</p>
+        </div>
+    </div>
+
+</body>
+</html>

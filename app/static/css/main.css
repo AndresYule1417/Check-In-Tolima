@@ -1,0 +1,223 @@
+/* 
+ * Main CSS para Check-In Agencia de Viajes 
+ * Variables Globales y Estilos Base
+ */
+
+ :root {
+    --verde-tolima: #2C6B3A;
+    --miel-dorado: #C8860A;
+    --tierra: #8B4513;
+    --cielo-azul: #1A5276;
+    --crema: #FDF6E3;
+    --bg-light: #F7F5F0;
+    --texto-dark: #1A1A1A;
+    --borde: #E8E4DC;
+    
+    --font-heading: 'Urbanist', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-light);
+    color: var(--texto-dark);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+    color: var(--verde-tolima);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.main-content {
+    flex: 1;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--borde);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 72px;
+}
+
+.logo {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--texto-dark);
+}
+
+.logo span {
+    color: var(--verde-tolima);
+}
+
+.nav-links {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--texto-dark);
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+    color: var(--verde-tolima);
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--verde-tolima);
+    color: var(--verde-tolima) !important;
+}
+
+.btn-outline:hover {
+    background-color: var(--verde-tolima);
+    color: #ffffff !important;
+}
+
+/* Footer */
+.footer {
+    background-color: #ffffff;
+    border-top: 1px solid var(--borde);
+    padding: 48px 0 24px;
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-bottom: 32px;
+}
+
+.footer-brand p {
+    color: #666;
+    max-width: 300px;
+    margin-top: 12px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+}
+
+.footer-bottom {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    padding-top: 24px;
+    border-top: 1px solid var(--borde);
+}
+
+/* Toast System */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 300px;
+    max-width: 400px;
+    animation: slideIn 0.3s ease forwards;
+    border-left: 4px solid #ccc;
+}
+
+.toast-success { border-left-color: var(--verde-tolima); }
+.toast-error { border-left-color: #E74C3C; }
+.toast-warning { border-left-color: var(--miel-dorado); }
+.toast-info { border-left-color: var(--cielo-azul); }
+
+.toast-icon {
+    font-size: 20px;
+    margin-right: 12px;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-content p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #999;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Spinner */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

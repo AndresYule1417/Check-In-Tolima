@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Check-In Agencia de Viajes Tolima{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    {% block extra_css %}{% endblock %}
+    <style>
+        .footer {
+            background: #1A1C1E;
+            color: #fff;
+            padding: 80px 0 40px;
+            margin-top: 100px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 64px;
+            margin-bottom: 60px;
+        }
+
+        .footer-brand h3 {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .footer-brand h3 span { color: var(--verde-tolima); }
+
+        .footer-brand p {
+            color: #9CA3AF;
+            max-width: 320px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .footer-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--verde-tolima);
+        }
+
+        .footer-links-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links-list li { margin-bottom: 12px; }
+
+        .footer-links-list a {
+            color: #9CA3AF;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links-list a:hover { color: #fff; transform: translateX(5px); }
+
+        .footer-bottom {
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+        }
+    <style>
+        /* Estilos para el Navbar Pulido */
+        .user-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .user-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 50px;
+            background: rgba(44, 107, 58, 0.05);
+            border: 1px solid rgba(44, 107, 58, 0.1);
+            transition: 0.2s;
+        }
+        .user-nav-btn:hover { background: rgba(44, 107, 58, 0.1); }
+        .avatar-nav {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--verde-tolima);
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 5px);
+            right: 120;
+            width: 220px;
+            background: #fff;
+            border: 1px solid var(--borde);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 10000;
+            overflow: hidden;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--texto-dark);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .dropdown-item:hover { background: #f9fafb; color: var(--verde-tolima); }
+        .dropdown-divider { height: 1px; background: var(--borde); }
+        
+        @media (max-width: 768px) {
+            .dropdown-menu { right: 0; left: auto; }
+        }
+        .user-dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--texto-dark);
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .dropdown-item:hover {
+            background: #f9fafb;
+            color: var(--verde-tolima);
+        }
+        .dropdown-divider {
+            height: 1px;
+            background: var(--borde);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar base -->
+    <header class="navbar">
+        <div class="container navbar-content">
+            <a href="/" class="logo">Check-In <span>Tolima</span></a>
+            <nav class="nav-links">
+                <a href="/">Inicio</a>
+                <a href="/viajes">Catálogo</a>
+                
+                {% if current_user.is_authenticated %}
+                    <div class="user-dropdown">
+                        <div class="user-nav-btn" id="userMenuBtn">
+                            <span style="font-weight: 500; font-size: 14px; margin-right: 5px;">{{ current_user.nombre.split(' ')[0] }}</span>
+                            <img src="{{ current_user.avatar_url or url_for('static', filename='img/default-avatar.png') }}" 
+                                 class="avatar-nav" 
+                                 onerror="this.src='https://ui-avatars.com/api/?name={{ current_user.nombre }}&background=2C6B3A&color=fff'">
+                        </div>
+                        <div class="dropdown-menu" id="userDropdownMenu">
+                            <div style="padding: 15px 20px; background: #f9fafb;">
+                                <div style="font-size: 12px; color: #6b7280;">Conectado como:</div>
+                                <div style="font-weight: 700; font-size: 14px; color: var(--verde-tolima);">{{ current_user.rol|upper }}</div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/mi-perfil" class="dropdown-item"><i class="ph ph-user"></i> Mi Perfil</a>
+                            {% if current_user.rol == 'admin' %}
+                                <a href="/admin" class="dropdown-item" style="color: var(--miel-dorado);"><i class="ph-bold ph-shield-check"></i> Panel Admin</a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <a href="/auth/logout" class="dropdown-item" style="color: #F87171;"><i class="ph ph-sign-out"></i> Cerrar Sesión</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="/auth/login" class="btn btn-outline">Iniciar Sesión</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <script>
+        // Lógica de Menú Desplegable (Dropdown) por Clic
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.getElementById('userMenuBtn');
+            const dropdownMenu = document.getElementById('userDropdownMenu');
+
+            if (menuBtn && dropdownMenu) {
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                });
+
+                // Cerrar al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Sistema de Notificaciones (Toasts) -->
+    <div id="toast-container" class="toast-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast toast-{{ category }}">
+                        <div class="toast-icon">
+                            {% if category == 'success' %}✅{% elif category == 'error' %}❌{% elif category == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+                        </div>
+                        <div class="toast-content">
+                            <p>{{ message }}</p>
+                        </div>
+                        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer Premium -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Check-In <span>Tolima</span></h3>
+                    <p>Descubre el corazón de Colombia con experiencias únicas y memorables.</p>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title">Explora</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="/nosotros"><i class="ph ph-info"></i> Nosotros</a></li>
+                        <li><a href="/viajes"><i class="ph ph-map-pin"></i> Destinos</a></li>
+                        <li><a href="/contacto"><i class="ph ph-envelope"></i> Contacto</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Legal</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="#"><i class="ph ph-file-text"></i> Términos</a></li>
+                        <li><a href="#"><i class="ph ph-shield"></i> Privacidad</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 Check-In Agencia de Viajes. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,134 @@
+/* Components CSS - Específicamente para UI Elements reutilizables */
+
+/* Tarjetas de Viaje (Cards estilo Airbnb) */
+.card-viaje {
+    display: block;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--texto-dark);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--borde);
+    position: relative;
+}
+
+.card-viaje:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+
+.card-img-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; /* Ratio 4:3 */
+    overflow: hidden;
+    background-color: #f0f0f0;
+}
+
+.card-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.card-viaje:hover .card-img {
+    transform: scale(1.05);
+}
+
+/* Badges */
+.badge {
+    position: absolute;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    z-index: 10;
+}
+
+.badge-discount {
+    top: 12px;
+    left: 12px;
+    background-color: var(--miel-dorado);
+    color: #fff;
+}
+
+.badge-category {
+    top: 12px;
+    right: 12px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--texto-dark);
+    backdrop-filter: blur(4px);
+}
+
+/* Card Content */
+.card-content {
+    padding: 16px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-rating {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.card-desc {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price-old {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 14px;
+}
+
+.price-new {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.stock-warning {
+    color: var(--miel-dorado);
+    font-size: 13px;
+    font-weight: 600;
+}

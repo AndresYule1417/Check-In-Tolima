@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Factura Check-In Tolima</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+
+    <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #2F4F4F; margin: 0;">Check-In Agencia de Viajes</h1>
+            <p style="color: #666; margin-top: 5px;">Recibo de Pago Confirmado</p>
+        </div>
+
+        <p>Hola <strong>{{ usuario.nombre }}</strong>,</p>
+        <p>¡Gracias por elegir viajar con nosotros! Hemos recibido tu pago y tu reserva está 100% confirmada. A continuación encontrarás los detalles de tu factura:</p>
+
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 30px 0;">
+            <p><strong>Referencia de Reserva:</strong> {{ reserva.codigo_ref }}</p>
+            <p><strong>Destino:</strong> {{ reserva.viaje.nombre }}</p>
+            <p><strong>Fecha del Viaje:</strong> {{ reserva.fecha_viaje.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Número de Personas:</strong> {{ reserva.num_personas }}</p>
+            <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+            <h2 style="margin: 0; text-align: right; color: #DAA520;">Total Pagado: ${{ "{:,.0f}".format(reserva.total) }}</h2>
+        </div>
+
+        <p>Si tienes alguna duda o necesitas realizar un cambio en tu itinerario, por favor responde a este correo o contáctanos a través de la página web.</p>
+
+        <p style="text-align: center; color: #888; font-size: 12px; margin-top: 40px;">
+            Check-In Tolima &copy; {{ reserva.fecha_reserva.strftime('%Y') }}<br>
+            Ibagué, Tolima, Colombia
+        </p>
+
+    </div>
+
+</body>
+</html>

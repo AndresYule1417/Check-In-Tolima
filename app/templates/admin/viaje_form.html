@@ -1,0 +1,91 @@
+{% extends "admin/layout.html" %}
+
+{% block header_title %}
+<a href="{{ url_for('admin.viajes') }}" style="color: inherit; text-decoration: none;">Catálogo</a> 
+<i class="ph ph-caret-right" style="margin: 0 8px; font-size: 14px;"></i> 
+{{ 'Editar Destino' if viaje else 'Crear Nuevo Destino' }}
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="admin-card" style="padding: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; border-bottom: 1px solid #F3F4F6; padding-bottom: 24px;">
+            <div>
+                <h2 style="margin: 0; font-size: 22px; color: #111827;">{{ 'Configuración del Viaje' if viaje else 'Nuevo Registro de Viaje' }}</h2>
+                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6B7280;">Completa los detalles para publicar este destino en el catálogo público.</p>
+            </div>
+            {% if viaje %}
+            <span class="status-badge {{ 'status-active' if viaje.activo else 'status-inactive' }}" style="padding: 6px 16px; font-size: 12px;">
+                {{ 'Publicado' if viaje.activo else 'Borrador / Pausado' }}
+            </span>
+            {% endif %}
+        </div>
+        
+        <form action="{{ url_for('admin.editar_viaje', id=viaje.id) if viaje else url_for('admin.nuevo_viaje') }}" method="POST">
+            
+            <div class="admin-form-group">
+                <label><i class="ph-bold ph-map-pin"></i> Nombre del Destino</label>
+                <input type="text" name="nombre" value="{{ viaje.nombre if viaje else '' }}" required placeholder="Ej: Nevado del Tolima - Aventura Glaciar" style="font-size: 16px; font-weight: 500;">
+            </div>
+
+            <div class="admin-form-group">
+                <label><i class="ph-bold ph-text-align-left"></i> Descripción de la Experiencia</label>
+                <textarea name="descripcion" rows="5" required placeholder="Describe los paisajes, el itinerario y lo que incluye el viaje...">{{ viaje.descripcion if viaje else '' }}</textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label><i class="ph-bold ph-tag"></i> Categoría Principal</label>
+                    <select name="categoria" required>
+                        <option value="aventura" {% if viaje and viaje.categoria == 'aventura' %}selected{% endif %}>Aventura y Trekking</option>
+                        <option value="descanso" {% if viaje and viaje.categoria == 'descanso' %}selected{% endif %}>Relajación y Naturaleza</option>
+                        <option value="cultura" {% if viaje and viaje.categoria == 'cultura' %}selected{% endif %}>Cultura e Historia Tolimense</option>
+                    </select>
+                </div>
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label><i class="ph-bold ph-currency-dollar"></i> Precio Base (COP)</label>
+                    <input type="number" name="price_display" value="{{ viaje.precio if viaje else '' }}" id="price_input" oninput="document.getElementsByName('precio')[0].value = this.value" placeholder="Monto sin puntos ni comas">
+                    <input type="hidden" name="precio" value="{{ viaje.precio if viaje else '' }}">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 24px; background: #F9FAFB; padding: 20px; border-radius: 12px; border: 1px solid #F3F4F6;">
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label><i class="ph-bold ph-users"></i> Cupos Totales</label>
+                    <input type="number" name="cupos_total" value="{{ viaje.cupos_total if viaje else '10' }}" required min="1">
+                </div>
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label><i class="ph-bold ph-percent"></i> Descuento (%)</label>
+                    <input type="number" name="descuento_pct" value="{{ viaje.descuento_pct if viaje else '0' }}" min="0" max="100">
+                </div>
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label><i class="ph-bold ph-clock"></i> Duración (Mins)</label>
+                    <input type="number" name="duracion_min" value="{{ viaje.duracion_min if viaje else '1440' }}" required min="60">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label><i class="ph-bold ph-calendar"></i> Fecha de Salida / Inicio</label>
+                    <input type="date" name="fecha_inicio" value="{{ viaje.fecha_inicio.strftime('%Y-%m-%d') if viaje and viaje.fecha_inicio else '' }}" required>
+                </div>
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label><i class="ph-bold ph-image"></i> Imagen Principal (URL)</label>
+                    <input type="url" name="imagen_url" value="{{ viaje.imagen_url if viaje else '' }}" required placeholder="Enlace de la fotografía (Unsplash, etc.)">
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F3F4F6; padding-top: 32px;">
+                <a href="{{ url_for('admin.viajes') }}" style="color: #6B7280; font-weight: 600; text-decoration: none; font-size: 14px;"><i class="ph ph-arrow-left"></i> Volver sin guardar</a>
+                
+                <div style="display: flex; gap: 16px;">
+                    <button type="submit" class="btn" style="background: var(--verde-tolima); color: #fff; padding: 14px 40px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.2);">
+                        <i class="ph-bold ph-floppy-disk"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

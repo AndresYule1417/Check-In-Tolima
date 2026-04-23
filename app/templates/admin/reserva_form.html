@@ -1,0 +1,79 @@
+{% extends "admin/layout.html" %}
+
+{% block header_title %}
+<a href="{{ url_for('admin.reservas') }}" style="color: inherit; text-decoration: none;">Reservas</a> 
+<i class="ph ph-caret-right" style="margin: 0 8px; font-size: 14px;"></i> 
+Edición de Reserva #{{ reserva.codigo_ref }}
+{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 700px; margin: 0 auto; padding: 32px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <h2 style="margin: 0; font-size: 20px;">Modificar Datos de Reserva</h2>
+        <span style="font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
+            {% if reserva.estado == 'pendiente' %}background: #FEF3C7; color: #92400E;
+            {% elif reserva.estado == 'confirmada' %}background: #D1FAE5; color: #065F46;
+            {% else %}background: #FEE2E2; color: #991B1B;{% endif %}
+        ">
+            {{ reserva.estado | upper }}
+        </span>
+    </div>
+
+    <form action="{{ url_for('admin.editar_reserva', id=reserva.id) }}" method="POST">
+        
+        <div style="background: #F9FAFB; padding: 16px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #E5E7EB;">
+            <p style="margin: 0; font-size: 14px; color: #6B7280;">Cliente: <strong>{{ reserva.usuario.nombre }}</strong> ({{ reserva.usuario.correo }})</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #6B7280;">Viaje: <strong>{{ reserva.viaje.nombre }}</strong></p>
+        </div>
+
+        <div style="display: flex; gap: 16px;">
+            <div class="admin-form-group" style="flex: 1;">
+                <label>Fecha del Viaje</label>
+                <input type="date" name="fecha_viaje" value="{{ reserva.fecha_viaje.strftime('%Y-%m-%d') }}" required>
+            </div>
+            <div class="admin-form-group" style="flex: 1;">
+                <label>Estado Actual</label>
+                <select name="estado">
+                    <option value="pendiente" {% if reserva.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                    <option value="confirmada" {% if reserva.estado == 'confirmada' %}selected{% endif %}>Confirmada</option>
+                    <option value="completada" {% if reserva.estado == 'completada' %}selected{% endif %}>Completada</option>
+                    <option value="cancelada" {% if reserva.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 16px;">
+            <div class="admin-form-group" style="flex: 1;">
+                <label>Número de Personas</label>
+                <input type="number" name="num_personas" value="{{ reserva.num_personas }}" min="1" required>
+                <small style="color: #6B7280; font-size: 11px;">Afectará los cupos disponibles del viaje.</small>
+            </div>
+            <div class="admin-form-group" style="flex: 1;">
+                <label>Monto Total (COP)</label>
+                <input type="number" name="total" value="{{ reserva.total }}" step="0.01" required>
+            </div>
+        </div>
+
+        <!-- Sugerencia implementada: Espacio para notas (Superusuario) -->
+        <div class="admin-form-group">
+            <label>Notas Internas del Administrador</label>
+            <textarea name="notas" rows="4" placeholder="Escribe detalles privados sobre esta reserva aquí...">{{ reserva.notas if reserva.notas else '' }}</textarea>
+        </div>
+
+        <div style="margin-top: 32px; display: flex; justify-content: space-between; align-items: center;">
+            <form action="{{ url_for('admin.eliminar_reserva', id=reserva.id) }}" method="POST" onsubmit="return confirm('¿ESTÁS ABSOLUTAMENTE SEGURO? Esta acción borrará la reserva de la base de datos y devolverá los cupos.');">
+                <button type="submit" style="background: none; border: none; color: #DC2626; font-size: 13px; cursor: pointer; text-decoration: underline;">
+                    <i class="ph ph-trash"></i> Eliminar definitivamente
+                </button>
+            </form>
+            
+            <div style="display: flex; gap: 12px;">
+                <a href="{{ url_for('admin.reservas') }}" class="btn btn-outline" style="padding: 10px 20px;">Cancelar</a>
+                <button type="submit" class="btn" style="background: var(--verde-tolima); color: #fff; padding: 10px 20px;">
+                    <i class="ph ph-floppy-disk"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends "admin/layout.html" %}
+
+{% block header_title %}Catálogo Maestro de Destinos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .viajes-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .kpi-mini {
+        background: #fff;
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .kpi-mini .icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .kpi-mini .info h4 { margin: 0; font-size: 12px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-mini .info .val { font-size: 20px; font-weight: 700; color: #111827; }
+
+    .catalog-actions {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+    }
+
+    .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
+    .search-box input { width: 100%; padding: 12px 12px 12px 45px; border: 1px solid #D1D5DB; border-radius: 10px; outline: none; transition: 0.2s; }
+    .search-box input:focus { border-color: var(--verde-tolima); box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1); }
+
+    /* Estilos de Tabla */
+    .table-card { background: #fff; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .trip-table { width: 100%; border-collapse: collapse; }
+    .trip-table th { background: #F9FAFB; padding: 16px 24px; text-align: left; font-size: 11px; font-weight: 700; color: #4B5563; text-transform: uppercase; border-bottom: 1px solid #E5E7EB; }
+    .trip-table td { padding: 16px 24px; border-bottom: 1px solid #F3F4F6; vertical-align: middle; }
+    .trip-table tr:hover { background: #F9FAFB; }
+
+    .trip-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #E5E7EB; }
+
+    .occupancy-bar-container { width: 100%; background: #E5E7EB; height: 8px; border-radius: 4px; margin-top: 6px; overflow: hidden; }
+    .occupancy-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+    .status-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase; }
+    .status-active { background: #D1FAE5; color: #065F46; }
+    .status-inactive { background: #F3F4F6; color: #4B5563; }
+
+    .btn-action {
+        width: 36px; height: 36px; border-radius: 8px; border: 1px solid #E5E7EB; background: #fff;
+        display: inline-flex; align-items: center; justify-content: center; color: #4B5563; cursor: pointer; transition: 0.2s;
+        text-decoration: none;
+    }
+    .btn-action:hover { border-color: var(--verde-tolima); color: var(--verde-tolima); background: #F0FDF4; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- KPIs del Catálogo -->
+<div class="viajes-stats">
+    <div class="kpi-mini">
+        <div class="icon-circle" style="background: #DBEAFE; color: #1E40AF;"><i class="ph-fill ph-map-trifold"></i></div>
+        <div class="info">
+            <h4>Total Destinos</h4>
+            <span class="val">{{ total_destinos }}</span>
+        </div>
+    </div>
+    <div class="kpi-mini">
+        <div class="icon-circle" style="background: #FEE2E2; color: #991B1B;"><i class="ph-fill ph-warning-diamond"></i></div>
+        <div class="info">
+            <h4>Alertas de Cupo</h4>
+            <span class="val" style="color: #DC2626;">{{ alertas_cupo }}</span>
+        </div>
+    </div>
+    <div class="kpi-mini">
+        <div class="icon-circle" style="background: #D1FAE5; color: #065F46;"><i class="ph-fill ph-crown"></i></div>
+        <div class="info">
+            <h4>Más Vendido</h4>
+            <span class="val" style="font-size: 14px;">{{ mejor_viaje }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones y Filtros -->
+<div class="catalog-actions">
+    <div class="search-box">
+        <i class="ph ph-magnifying-glass"></i>
+        <input type="text" id="tripSearch" placeholder="Buscar por nombre, categoría..." onkeyup="filterTrips()">
+    </div>
+    <a href="{{ url_for('admin.nuevo_viaje') }}" class="btn" style="background: var(--verde-tolima); color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 8px;">
+        <i class="ph-bold ph-plus"></i> Nuevo Destino
+    </a>
+</div>
+
+<!-- Tabla de Destinos -->
+<div class="table-card">
+    <table class="trip-table">
+        <thead>
+            <tr>
+                <th>Destino</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Ocupación</th>
+                <th>Estado</th>
+                <th style="text-align: right;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tripTableBody">
+            {% for v in viajes %}
+            <tr class="trip-row" data-search="{{ v.nombre|lower }} {{ v.categoria|lower }}">
+                <td>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="{{ v.imagen_url }}" class="trip-thumb" onerror="this.src='https://placehold.co/100x100?text=Viaje'">
+                        <div>
+                            <div style="font-weight: 600; color: #111827;">{{ v.nombre }}</div>
+                            <div style="font-size: 11px; color: #6B7280;"><i class="ph ph-calendar"></i> {{ v.fecha_inicio.strftime('%d %b, %Y') }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span style="font-size: 12px; background: #F3F4F6; padding: 2px 8px; border-radius: 4px; color: #4B5563; font-weight: 500;">
+                        {{ v.categoria | capitalize }}
+                    </span>
+                </td>
+                <td>
+                    <div style="font-weight: 700; color: #111827;">${{ "{:,.0f}".format(v.precio) }}</div>
+                    {% if v.descuento_pct > 0 %}
+                    <div style="font-size: 10px; color: #059669; font-weight: 600;">-{{ v.descuento_pct }}% OFF</div>
+                    {% endif %}
+                </td>
+                <td style="width: 200px;">
+                    {% set ocupados = v.cupos_total - v.cupos_disp %}
+                    {% set pct = (ocupados / v.cupos_total * 100)|round|int %}
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 4px;">
+                        <span>{{ pct }}% Lleno</span>
+                        <span>{{ ocupados }}/{{ v.cupos_total }}</span>
+                    </div>
+                    <div class="occupancy-bar-container">
+                        <div class="occupancy-bar-fill" style="width: {{ pct }}%; 
+                            background: {% if pct > 85 %}#EF4444{% elif pct > 50 %}#F59E0B{% else %}#10B981{% endif %};">
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="status-badge {{ 'status-active' if v.activo else 'status-inactive' }}">
+                        {{ 'Activo' if v.activo else 'Pausado' }}
+                    </span>
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="{{ url_for('admin.editar_viaje', id=v.id) }}" class="btn-action" title="Editar">
+                            <i class="ph-bold ph-pencil-simple"></i>
+                        </a>
+                        <form action="{{ url_for('admin.eliminar_viaje', id=v.id) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn-action" title="{{ 'Desactivar' if v.activo else 'Activar' }}" style="color: {{ '#EF4444' if v.activo else '#10B981' }};">
+                                <i class="ph-bold {{ 'ph-eye-slash' if v.activo else 'ph-eye' }}"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function filterTrips() {
+        const input = document.getElementById('tripSearch');
+        const filter = input.value.toLowerCase();
+        const rows = document.querySelectorAll('.trip-row');
+
+        rows.forEach(row => {
+            const searchText = row.getAttribute('data-search');
+            row.style.display = searchText.includes(filter) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

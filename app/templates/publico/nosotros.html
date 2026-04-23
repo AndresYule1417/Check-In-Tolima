@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Nosotros - Check-In Tolima{% endblock %}
+
+{% block content %}
+<div style="background-color: var(--verde-tolima); padding: 80px 20px; text-align: center; color: white;">
+    <h1 style="font-size: 48px;">Nuestra Historia</h1>
+    <p style="font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto;">Promoviendo el turismo responsable y sostenible en el departamento del Tolima.</p>
+</div>
+
+<div class="container" style="padding: 64px 20px; max-width: 800px; line-height: 1.8; font-size: 18px; color: #444;">
+    <p><strong>Check-In Agencia de Viajes</strong> nació de un proyecto académico en la Universidad Cooperativa de Colombia. Nuestro objetivo principal es visibilizar los destinos menos explorados del Tolima y ofrecer una experiencia digital de primer nivel a nuestros usuarios.</p>
+
+    <h2 style="color: var(--miel-dorado); margin-top: 48px;">Misión</h2>
+    <p>Conectar a los viajeros con la riqueza cultural, gastronómica y natural del Tolima, brindando experiencias seguras, accesibles y memorables mediante una plataforma tecnológica de vanguardia.</p>
+
+    <h2 style="color: var(--miel-dorado); margin-top: 48px;">Visión</h2>
+    <p>Ser reconocidos para el 2026 como la principal agencia de turismo digital del centro de Colombia, destacando por nuestra usabilidad, diseño innovador y compromiso con el desarrollo de las comunidades locales.</p>
+    
+    <div style="margin-top: 64px; text-align: center;">
+        <a href="{{ url_for('publico.contacto') }}" class="btn" style="background: var(--cielo-azul); color: white;">Contáctanos</a>
+    </div>
+</div>
+{% endblock %}

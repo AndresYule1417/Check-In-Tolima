@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Reserva - Check-In Tolima{% endblock %}
+
+{% block extra_css %}
+<style>
+    .perfil-layout { display: flex; gap: 32px; margin: 48px 0; }
+    .perfil-sidebar { width: 300px; flex-shrink: 0; }
+    .perfil-card { background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px; }
+    .perfil-nav { list-style: none; padding: 0; margin: 0; }
+    .perfil-nav li a { display: block; padding: 12px 16px; color: var(--texto-dark); font-weight: 500; border-radius: 8px; text-decoration: none; }
+    .perfil-nav li a:hover, .perfil-nav li a.active { background-color: #f0f0f0; color: var(--verde-tolima); }
+    
+    .perfil-main { flex: 1; }
+    .detalle-container { background: #fff; border: 1px solid var(--borde); border-radius: 12px; overflow: hidden; }
+    .detalle-header { background: var(--verde-tolima); color: #fff; padding: 32px; display: flex; justify-content: space-between; align-items: center; }
+    .detalle-body { padding: 40px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+    .info-item label { display: block; color: #6B7280; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .info-item span { font-size: 18px; font-weight: 600; color: #111827; }
+    
+    .status-badge { padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; text-transform: uppercase; }
+    .status-pendiente { background: rgba(255, 255, 255, 0.2); color: #fff; border: 1px solid #fff; }
+    .status-confirmada { background: #D4EDDA; color: #155724; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="perfil-layout">
+        <div class="perfil-sidebar">
+            <div class="perfil-card" style="padding: 16px 8px;">
+                <ul class="perfil-nav">
+                    <li><a href="{{ url_for('perfil.mi_perfil') }}" class="active">Mis Reservas</a></li>
+                    <li><a href="{{ url_for('perfil.editar_perfil') }}">Editar Perfil</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}" style="color: #EF4444;"><i class="ph ph-sign-out"></i> Cerrar Sesión</a></li>
+                </ul>
+            </div>
+            <a href="{{ url_for('perfil.mi_perfil') }}" class="btn btn-outline" style="width: 100%; box-sizing: border-box; text-align: center;"><i class="ph ph-arrow-left"></i> Volver</a>
+        </div>
+
+        <div class="perfil-main">
+            <div class="detalle-container">
+                <div class="detalle-header">
+                    <div>
+                        <h1 style="margin: 0; font-size: 24px;">Reserva: {{ reserva.viaje.nombre }}</h1>
+                        <p style="margin: 4px 0 0 0; opacity: 0.9;">Código de Referencia: <strong>{{ reserva.codigo_ref }}</strong></p>
+                    </div>
+                    <span class="status-badge status-{{ reserva.estado }}">{{ reserva.estado }}</span>
+                </div>
+
+                <div class="detalle-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Fecha del Viaje</label>
+                            <span>{{ reserva.fecha_viaje.strftime('%d de %B, %Y') }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Viajeros</label>
+                            <span>{{ reserva.num_personas }} Personas</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Fecha de Reserva</label>
+                            <span>{{ reserva.fecha_reserva.strftime('%d/%m/%Y a las %H:%M') }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Total Pagado</label>
+                            <span style="color: var(--verde-tolima); font-size: 22px;">${{ "{:,.0f}".format(reserva.total) }}</span>
+                        </div>
+                    </div>
+
+                    <div style="background: #F9FAFB; padding: 24px; border-radius: 12px; border: 1px solid #E5E7EB;">
+                        <h4 style="margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-credit-card"></i> Información del Pago
+                        </h4>
+                        {% if reserva.pagos %}
+                            {% set pago = reserva.pagos[0] %}
+                            <div style="display: flex; justify-content: space-between; font-size: 15px;">
+                                <span>Método de Pago: <strong>{{ pago.metodo|capitalize }}</strong></span>
+                                <span>Ref. Bancaria: <strong>{{ pago.referencia }}</strong></span>
+                            </div>
+                        {% else %}
+                            <p style="margin: 0; color: #6B7280;">No hay información de pago registrada.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div style="margin-top: 32px; display: flex; gap: 16px;">
+                        <button onclick="window.print()" class="btn" style="background: #374151; color: #fff;"><i class="ph ph-printer"></i> Imprimir Comprobante</button>
+                        {% if reserva.estado == 'confirmada' %}
+                        <a href="#" class="btn" style="background: var(--verde-tolima); color: #fff;"><i class="ph ph-envelope"></i> Reenviar Factura</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

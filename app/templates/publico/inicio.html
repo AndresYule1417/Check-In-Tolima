@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Check-In Tolima{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+<style>
+    /* Hero Section */
+    .hero {
+        background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{{ url_for("static", filename="img/portada..png") }}');
+        background-size: cover;
+        background-position: center;
+        height: 70vh;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #fff;
+    }
+
+    .hero-content h1 {
+        font-size: 56px;
+        margin-bottom: 16px;
+    }
+
+    .hero-content p {
+        font-size: 20px;
+        max-width: 600px;
+        margin: 0 auto 32px;
+        opacity: 0.9;
+    }
+
+    /* Search Box Overlay */
+    .search-box {
+        background: #fff;
+        padding: 16px;
+        border-radius: 40px;
+        display: flex;
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: 0 16px 32px rgba(0,0,0,0.1);
+    }
+
+    .search-box input {
+        flex: 1;
+        border: none;
+        padding: 0 24px;
+        font-size: 16px;
+        outline: none;
+        font-family: var(--font-body);
+    }
+
+    .btn-search {
+        background: var(--verde-tolima);
+        color: #fff;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* Sections */
+    .section-title {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+
+    .section-title h2 {
+        font-size: 32px;
+        color: var(--verde-tolima);
+    }
+
+    /* Grid layout genérico */
+    .grid-destacados {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 32px;
+    }
+
+    /* Call to Action */
+    .cta-section {
+        background-color: var(--miel-dorado);
+        color: #fff;
+        text-align: center;
+        padding: 64px 20px;
+        margin-top: 80px;
+    }
+
+    .cta-section h2 {
+        font-size: 36px;
+        margin-bottom: 24px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container hero-content">
+        <h1>Tu próxima aventura comienza aquí</h1>
+        <p>Descubre paisajes inolvidables, cultura rica y experiencias únicas en el corazón de Colombia.</p>
+        
+        <form class="search-box" action="{{ url_for('viajes.catalogo') }}" method="GET">
+            <input type="text" name="q" placeholder="¿A dónde quieres ir? (Ej. Prado, Ibagué)">
+            <button type="submit" class="btn-search">Buscar Destino</button>
+        </form>
+    </div>
+</section>
+
+<!-- Destinos Destacados -->
+<section class="container" style="padding: 80px 20px;">
+    <div class="section-title">
+        <h2>Experiencias Recomendadas</h2>
+        <p style="color: #666;">Selección de los mejores viajes para ti</p>
+    </div>
+
+    <div class="grid-destacados">
+        {% for viaje in viajes %}
+        <a href="{{ url_for('viajes.detalle', id=viaje.id) }}" class="card-viaje">
+            <div class="card-img-wrapper">
+                <img src="{{ viaje.imagen_url }}" alt="{{ viaje.nombre }}" class="card-img">
+                {% if viaje.descuento_pct > 0 %}
+                <span class="badge badge-discount">-{{ viaje.descuento_pct }}%</span>
+                {% endif %}
+                <span class="badge badge-category">{{ viaje.categoria|capitalize }}</span>
+            </div>
+            <div class="card-content">
+                <h3 class="card-title" style="margin-bottom: 8px;">{{ viaje.nombre }}</h3>
+                <p class="card-desc">{{ viaje.descripcion|truncate(60) }}</p>
+                <div class="card-price">
+                    <span class="price-new">${{ "{:,.0f}".format(viaje.precio) }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div style="text-align: center; margin-top: 48px;">
+        <a href="{{ url_for('viajes.catalogo') }}" class="btn" style="background: var(--cielo-azul); color: #fff;">Ver Todos los Destinos</a>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="container">
+        <h2>¿Listo para viajar con Check-In Tolima?</h2>
+        <p style="font-size: 18px; margin-bottom: 32px;">Crea una cuenta para acceder a descuentos exclusivos y gestionar tus reservas fácilmente.</p>
+        <a href="{{ url_for('auth.registro') }}" class="btn" style="background: #fff; color: var(--miel-dorado); font-size: 18px; padding: 16px 40px;">Regístrate Gratis</a>
+    </div>
+</section>
+{% endblock %}

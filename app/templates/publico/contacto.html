@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto - Check-In Tolima{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 64px 20px;">
+    <div style="display: flex; gap: 48px; flex-wrap: wrap;">
+        
+        <div style="flex: 1; min-width: 300px;">
+            <h1 style="color: var(--verde-tolima); font-size: 40px; margin-bottom: 16px;">Contáctanos</h1>
+            <p style="font-size: 18px; color: #666; margin-bottom: 32px;">¿Tienes alguna duda sobre nuestras reservas o quieres aliarte con nosotros? Escríbenos.</p>
+            
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin-bottom: 8px;">📍 Ubicación</h3>
+                <p style="color: #666;">Ibagué, Tolima - Colombia</p>
+            </div>
+            <div style="margin-bottom: 24px;">
+                <h3 style="margin-bottom: 8px;">📧 Correo Electrónico</h3>
+                <p style="color: #666;">info@checkintolima.com.co</p>
+            </div>
+        </div>
+
+        <div style="flex: 1; min-width: 300px; background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); border: 1px solid var(--borde);">
+            <form action="#" method="POST" onsubmit="event.preventDefault(); alert('¡Gracias por tu mensaje! Te contactaremos pronto.'); this.reset();">
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nombre Completo</label>
+                    <input type="text" required style="width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; font-family: var(--font-body); box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Correo Electrónico</label>
+                    <input type="email" required style="width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; font-family: var(--font-body); box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Mensaje</label>
+                    <textarea rows="4" required style="width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; font-family: var(--font-body); box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; background: var(--verde-tolima); color: #fff;">Enviar Mensaje</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

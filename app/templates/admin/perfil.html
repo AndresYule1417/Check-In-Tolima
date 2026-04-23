@@ -1,0 +1,125 @@
+{% extends "admin/layout.html" %}
+
+{% block header_title %}Mi Perfil Administrativo{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-upload-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        cursor: pointer;
+        group: hover;
+    }
+    
+    .avatar-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        opacity: 0;
+        transition: 0.3s;
+        font-size: 24px;
+    }
+    
+    .avatar-upload-container:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-img-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="admin-card" style="padding: 40px;">
+        
+        <form action="{{ url_for('admin.mi_perfil') }}" method="POST" enctype="multipart/form-data">
+            
+            <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; text-align: center;">
+                <div class="avatar-upload-container" onclick="document.getElementById('avatarInput').click()">
+                    {% if current_user.avatar_url %}
+                        <img id="avatarPreview" src="{{ current_user.avatar_url }}" class="avatar-img-preview">
+                    {% else %}
+                        <div id="avatarPlaceholder" style="width: 120px; height: 120px; background: var(--verde-tolima); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 48px; font-weight: 700; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            {{ current_user.nombre[:1]|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="avatar-overlay">
+                        <i class="ph ph-camera"></i>
+                    </div>
+                </div>
+                <input type="file" id="avatarInput" name="avatar" style="display: none;" accept="image/*" onchange="previewImage(this)">
+                
+                <h2 style="margin: 16px 0 4px 0; font-size: 24px; color: #111827;">{{ current_user.nombre }}</h2>
+                <span class="status-badge status-active">Super Administrador</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="admin-form-group">
+                    <label><i class="ph-bold ph-user"></i> Nombre Completo</label>
+                    <input type="text" name="nombre" value="{{ current_user.nombre }}" required>
+                </div>
+                <div class="admin-form-group">
+                    <label><i class="ph-bold ph-envelope"></i> Correo Electrónico</label>
+                    <input type="email" name="correo" value="{{ current_user.correo }}" required>
+                </div>
+            </div>
+
+            <div style="background: #F9FAFB; border: 1px solid #E5E7EB; padding: 24px; border-radius: 12px; margin: 24px 0;">
+                <h4 style="margin: 0 0 16px 0; font-size: 14px; color: #374151; display: flex; align-items: center; gap: 8px;">
+                    <i class="ph-bold ph-lock-key"></i> Seguridad de la Cuenta
+                </h4>
+                <div class="admin-form-group" style="margin-bottom: 0;">
+                    <label>Cambiar Contraseña (dejar en blanco para mantener la actual)</label>
+                    <input type="password" name="password" placeholder="••••••••">
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 32px; gap: 16px; align-items: center;">
+                <span id="saveStatus" style="font-size: 13px; color: var(--verde-tolima); display: none;"><i class="ph ph-check-circle"></i> Imagen seleccionada</span>
+                <button type="submit" class="btn" style="background: var(--verde-tolima); color: #fff; padding: 14px 40px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.2);">
+                    Guardar Perfil
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('avatarPreview');
+                const placeholder = document.getElementById('avatarPlaceholder');
+                
+                if (preview) {
+                    preview.src = e.target.result;
+                } else if (placeholder) {
+                    // Si no había imagen, crear el img y ocultar el placeholder
+                    const newImg = document.createElement('img');
+                    newImg.id = 'avatarPreview';
+                    newImg.src = e.target.result;
+                    newImg.className = 'avatar-img-preview';
+                    placeholder.parentNode.insertBefore(newImg, placeholder);
+                    placeholder.style.display = 'none';
+                }
+                document.getElementById('saveStatus').style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

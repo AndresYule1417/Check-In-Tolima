@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Pasarela de Pago Segura - Check-In Tolima{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-layout {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 48px;
+        margin: 60px 0;
+    }
+
+    .payment-box {
+        background: #fff;
+        border: 1px solid #E5E7EB;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+    }
+
+    /* Credit Card Styling */
+    .card-visual {
+        background: linear-gradient(135deg, #1A1C1E 0%, #2C6B3A 100%);
+        width: 100%;
+        max-width: 400px;
+        height: 220px;
+        border-radius: 20px;
+        padding: 30px;
+        color: #fff;
+        position: relative;
+        margin: 0 auto 40px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card-chip {
+        width: 50px;
+        height: 40px;
+        background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+        border-radius: 8px;
+    }
+
+    .card-number-display {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 22px;
+        letter-spacing: 2px;
+    }
+
+    .card-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        text-transform: uppercase;
+        opacity: 0.8;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #D1D5DB;
+        border-radius: 12px;
+        font-size: 16px;
+        box-sizing: border-box;
+        transition: 0.3s;
+    }
+    .form-input:focus { outline: none; border-color: var(--verde-tolima); box-shadow: 0 0 0 4px rgba(44, 107, 58, 0.1); }
+
+    .summary-box {
+        background: #F9FAFB;
+        border: 1px solid #E5E7EB;
+        border-radius: 24px;
+        padding: 32px;
+        position: sticky;
+        top: 100px;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        color: #4B5563;
+        font-size: 15px;
+    }
+
+    .total-line {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 2px dashed #E5E7EB;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-pay-now {
+        width: 100%;
+        background: var(--verde-tolima);
+        color: #fff;
+        border: none;
+        padding: 18px;
+        border-radius: 14px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 32px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    .btn-pay-now:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(44, 107, 58, 0.2); }
+
+    @media (max-width: 900px) {
+        .checkout-layout { grid-template-columns: 1fr; }
+        .summary-box { position: relative; top: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="checkout-layout">
+        
+        <div class="checkout-main">
+            <h1 style="margin-bottom: 32px; font-size: 32px; color: #111827;">Finalizar Pago</h1>
+            
+            <div class="payment-box">
+                <!-- Tarjeta Visual -->
+                <div class="card-visual">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-chip"></div>
+                        <i class="ph ph-waves" style="font-size: 32px; opacity: 0.5;"></i>
+                    </div>
+                    <div class="card-number-display" id="cardNumberDisplay">**** **** **** 1111</div>
+                    <div class="card-meta">
+                        <div>
+                            <span style="font-size: 10px; display: block;">Titular</span>
+                            <span id="cardNameDisplay">{{ current_user.nombre|upper }}</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 10px; display: block;">Expira</span>
+                            <span>12 / 28</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('reservas.procesar_pago') }}" method="POST" id="pago-form">
+                    <input type="hidden" name="codigo_ref" value="{{ reserva.codigo_ref }}">
+                    <input type="hidden" name="metodo_pago" value="tarjeta">
+                    
+                    <div style="margin-bottom: 24px;">
+                        <label class="form-label">Número de Tarjeta</label>
+                        <input type="text" name="numero_tarjeta" id="numeroTarjeta" placeholder="4111 1111 1111 1111" class="form-input" required maxlength="19" value="4111 1111 1111 1111">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                        <div>
+                            <label class="form-label">Fecha de Vencimiento</label>
+                            <input type="text" placeholder="MM/YY" class="form-input" required value="12/28">
+                        </div>
+                        <div>
+                            <label class="form-label">CVC / CVV</label>
+                            <input type="text" placeholder="123" class="form-input" required value="123">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 8px;">
+                        <label class="form-label">Nombre del Titular</label>
+                        <input type="text" id="nombreTitular" placeholder="Tal cual aparece en la tarjeta" class="form-input" required value="{{ current_user.nombre }}">
+                    </div>
+
+                    <p style="font-size: 13px; color: #6B7280; margin-bottom: 32px;">
+                        <i class="ph ph-lock"></i> Tu información está encriptada y protegida por protocolos SSL.
+                    </p>
+
+                    <button type="submit" class="btn-pay-now" id="btnPagar">
+                        <i class="ph-fill ph-shield-check"></i> Confirmar y Pagar ${{ "{:,.0f}".format(reserva.total) }}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sidebar Resumen -->
+        <div class="checkout-sidebar">
+            <div class="summary-box">
+                <h3 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Resumen del Viaje</h3>
+                
+                <div style="display: flex; gap: 16px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #E5E7EB;">
+                    <img src="{{ reserva.viaje.imagen_url }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <div style="display: flex; flex-direction: column; justify-content: center;">
+                        <strong style="display: block; font-size: 18px; color: #111827;">{{ reserva.viaje.nombre }}</strong>
+                        <span style="color: var(--verde-tolima); font-weight: 600; font-size: 14px;">Ref: {{ reserva.codigo_ref }}</span>
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <span><i class="ph ph-calendar"></i> Fecha de Salida</span>
+                    <strong>{{ reserva.fecha_viaje.strftime('%d/%m/%Y') }}</strong>
+                </div>
+                <div class="summary-item">
+                    <span><i class="ph ph-users"></i> Cantidad de Personas</span>
+                    <strong>{{ reserva.num_personas }} Viajeros</strong>
+                </div>
+                <div class="summary-item">
+                    <span><i class="ph ph-tag"></i> Precio por persona</span>
+                    <strong>${{ "{:,.0f}".format(reserva.total / reserva.num_personas) }}</strong>
+                </div>
+                
+                <div class="total-line">
+                    <div style="font-size: 14px; color: #6B7280;">Monto Total</div>
+                    <div style="font-size: 28px; font-weight: 800; color: var(--verde-tolima);">${{ "{:,.0f}".format(reserva.total) }}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('pago-form');
+    const btn = document.getElementById('btnPagar');
+    const inputNombre = document.getElementById('nombreTitular');
+    const displayNombre = document.getElementById('cardNameDisplay');
+    const inputNumero = document.getElementById('numeroTarjeta');
+    const displayNumero = document.getElementById('cardNumberDisplay');
+
+    inputNombre.addEventListener('input', (e) => {
+        displayNombre.innerText = e.target.value.toUpperCase() || 'TITULAR';
+    });
+
+    inputNumero.addEventListener('input', (e) => {
+        displayNumero.innerText = e.target.value || '**** **** **** ****';
+    });
+
+    form.addEventListener('submit', () => {
+        btn.innerHTML = '<i class="ph ph-circle-notch animate-spin"></i> Procesando pago...';
+        btn.style.opacity = '0.7';
+        btn.style.pointerEvents = 'none';
+    });
+</script>
+{% endblock %}

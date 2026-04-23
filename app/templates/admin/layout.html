@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Check-In Viajes</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Urbanist:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons (SaaS Modern Icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Chart.js (Analítica Visual) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        :root {
+            --verde-tolima: #27AE60;
+            --miel-dorado: #F1C40F;
+            --admin-sidebar-bg: #1A1C1E;
+            --admin-header-bg: #FFFFFF;
+            --admin-text-muted: #9CA3AF;
+        }
+
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body { 
+            background-color: #F3F4F6; 
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            grid-template-rows: 100vh;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+        }
+        
+        /* Sidebar Premium */
+        .admin-sidebar {
+            background-color: var(--admin-sidebar-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-brand {
+            padding: 24px;
+            font-family: var(--font-heading);
+            font-size: 24px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .admin-brand i { color: var(--verde-tolima); font-size: 32px; }
+
+        .admin-nav {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .admin-nav-title {
+            padding: 10px 24px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--admin-text-muted);
+            font-weight: 600;
+        }
+
+        .admin-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: #D1D5DB;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .admin-nav li a:hover {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+
+        .admin-nav li a.active {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--verde-tolima);
+            border-left-color: var(--verde-tolima);
+        }
+        .admin-nav li a.active i { color: var(--verde-tolima); }
+
+        .admin-main {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Top Header */
+        .admin-header {
+            background: var(--admin-header-bg);
+            height: 70px;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            flex-shrink: 0;
+        }
+
+        .breadcrumb {
+            font-weight: 600;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-mini {
+            width: 38px;
+            height: 38px;
+            background: var(--verde-tolima);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(39, 174, 96, 0.2);
+        }
+
+        .admin-content {
+            padding: 24px;
+            width: 100%;
+            box-sizing: border-box;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Dropdowns */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-menu {
+            position: absolute; right: 0; top: 110%; width: 280px; background: #fff;
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid #E5E7EB; visibility: hidden; opacity: 0; transform: translateY(10px);
+            transition: 0.2s ease; z-index: 1000;
+        }
+        .dropdown.active .dropdown-menu { visibility: visible; opacity: 1; transform: translateY(0); }
+        .dropdown-header { padding: 16px; border-bottom: 1px solid #F3F4F6; font-weight: 600; font-size: 14px; }
+        .dropdown-item { padding: 12px 16px; display: flex; gap: 12px; align-items: center; text-decoration: none; color: #4B5563; font-size: 13px; transition: 0.15s; }
+        .dropdown-item:hover { background: #F9FAFB; color: var(--verde-tolima); }
+        
+        /* Floating Toasts */
+        .toast-container { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+        .toast {
+            min-width: 300px; padding: 16px 20px; border-radius: 12px; background: #fff;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-left: 5px solid #ccc;
+            display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast.success { border-left-color: #10B981; }
+        .toast.error { border-left-color: #EF4444; }
+        .toast.info { border-left-color: #3B82F6; }
+
+        /* Formularios SaaS */
+        .admin-form-group { margin-bottom: 20px; }
+        .admin-form-group label { display: block; font-weight: 500; margin-bottom: 8px; color: #374151; font-size: 14px; }
+        .admin-form-group input, .admin-form-group select, .admin-form-group textarea {
+            width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 6px; font-family: 'Inter'; box-sizing: border-box; font-size: 14px;
+        }
+        .admin-form-group input:focus, .admin-form-group select:focus, .admin-form-group textarea:focus {
+            outline: none; border-color: var(--verde-tolima); box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    
+    <!-- Contenedor de Notificaciones Toast -->
+    <div class="toast-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast {{ category }}">
+                        <i class="ph-fill {% if category == 'success' %}ph-check-circle{% elif category == 'error' %}ph-warning-circle{% else %}ph-info{% endif %}" 
+                           style="font-size: 24px; {% if category == 'success' %}color: #10B981;{% elif category == 'error' %}color: #EF4444;{% else %}color: #3B82F6;{% endif %}"></i>
+                        <span style="font-size: 14px; font-weight: 500; color: #374151;">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Sidebar Premium -->
+    <aside class="admin-sidebar">
+        <a href="{{ url_for('admin.dashboard') }}" class="admin-brand">
+            <i class="ph-fill ph-compass"></i>
+            <div>Check-In<span style="font-weight:400; color:var(--admin-text-muted); font-size: 14px; display:block; margin-top:-4px;">Admin Panel</span></div>
+        </a>
+        
+        <ul class="admin-nav">
+            <div class="admin-nav-title">Principal</div>
+            <li>
+                <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                    <i class="ph ph-squares-four"></i> Dashboard
+                </a>
+            </li>
+            
+            <div class="admin-nav-title">Gestión del Negocio</div>
+            <li>
+                <a href="{{ url_for('admin.reservas') }}" class="{% if request.endpoint in ['admin.reservas', 'admin.editar_reserva'] %}active{% endif %}">
+                    <i class="ph ph-ticket"></i> Reservas
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin.viajes') }}" class="{% if request.endpoint in ['admin.viajes', 'admin.nuevo_viaje', 'admin.editar_viaje'] %}active{% endif %}">
+                    <i class="ph ph-map-trifold"></i> Catálogo de Viajes
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin.usuarios') }}" class="{% if request.endpoint == 'admin.usuarios' %}active{% endif %}">
+                    <i class="ph ph-users"></i> Usuarios
+                </a>
+            </li>
+
+            <div class="admin-nav-title">Opciones</div>
+            <li>
+                <a href="{{ url_for('viajes.catalogo') }}">
+                    <i class="ph ph-arrow-square-out"></i> Ver Sitio Web
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('auth.logout') }}" style="color: #FCA5A5;">
+                    <i class="ph ph-sign-out" style="color: #FCA5A5;"></i> Cerrar Sesión
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="admin-main">
+        <header class="admin-header">
+            <div class="breadcrumb">
+                {% block header_title %}Dashboard{% endblock %}
+            </div>
+            
+            <div class="admin-header-actions">
+                <!-- Dropdown Notificaciones -->
+                <div class="dropdown" id="notifDropdown">
+                    <div style="position: relative; cursor: pointer;" onclick="toggleDropdown('notifDropdown')">
+                        <i class="ph ph-bell" style="font-size: 24px; color: #6B7280;"></i>
+                        <span style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #EF4444; border-radius: 50%; border: 2px solid #fff;"></span>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-header">Notificaciones Recientes</div>
+                        <div class="dropdown-item">
+                            <i class="ph-fill ph-circle" style="color: #10B981; font-size: 8px;"></i>
+                            <div>
+                                <div style="font-weight: 600;">Nuevo pago recibido</div>
+                                <div style="font-size: 11px; color: #9CA3AF;">Hace 5 minutos</div>
+                            </div>
+                        </div>
+                        <div class="dropdown-item">
+                            <i class="ph-fill ph-circle" style="color: #F59E0B; font-size: 8px;"></i>
+                            <div>
+                                <div style="font-weight: 600;">Reserva pendiente: Nevado</div>
+                                <div style="font-size: 11px; color: #9CA3AF;">Hace 1 hora</div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('admin.reservas') }}" style="display: block; padding: 12px; text-align: center; font-size: 12px; color: var(--verde-tolima); font-weight: 600; border-top: 1px solid #F3F4F6;">Ver todas las reservas</a>
+                    </div>
+                </div>
+                
+                <!-- Dropdown Perfil -->
+                <div class="dropdown" id="profileDropdown">
+                    <div class="admin-user" onclick="toggleDropdown('profileDropdown')" style="cursor: pointer;">
+                        {% if current_user.avatar_url %}
+                            <img src="{{ current_user.avatar_url }}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--verde-tolima);">
+                        {% else %}
+                            <div class="avatar-mini">
+                                {{ current_user.nombre[:1] | upper }}
+                            </div>
+                        {% endif %}
+                        <span style="font-size: 14px; font-weight: 500; color: #374151;">{{ current_user.nombre }}</span>
+                        <i class="ph ph-caret-down" style="font-size: 12px; color: #9CA3AF;"></i>
+                    </div>
+                    <div class="dropdown-menu" style="width: 180px;">
+                        <a href="{{ url_for('admin.mi_perfil') }}" class="dropdown-item">
+                            <i class="ph ph-user"></i> Mi Perfil
+                        </a>
+                        <div style="border-top: 1px solid #F3F4F6; margin-top: 4px;"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="dropdown-item" style="color: #EF4444;">
+                            <i class="ph ph-sign-out"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const isActive = dropdown.classList.contains('active');
+            
+            // Cerrar todos los dropdowns
+            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+            
+            if (!isActive) {
+                dropdown.classList.add('active');
+            }
+        }
+
+        // Cerrar al hacer clic fuera
+        window.onclick = function(event) {
+            if (!event.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+            }
+        }
+
+        // Auto-eliminar toasts después de 5 segundos
+        setTimeout(() => {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(t => {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(100%)';
+                setTimeout(() => t.remove(), 300);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

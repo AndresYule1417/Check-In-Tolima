@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Error Interno{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background-color: #1a1c1e;
+        color: #ffffff;
+        border-radius: 24px;
+        margin: 40px auto;
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .error-container::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: radial-gradient(circle at center, rgba(44, 107, 58, 0.3) 0%, transparent 70%);
+    }
+
+    .error-code {
+        font-size: 100px;
+        font-weight: 900;
+        margin: 0;
+        color: var(--verde-tolima);
+    }
+
+    .error-title {
+        font-size: 32px;
+        margin: 20px 0;
+        font-family: 'Urbanist', sans-serif;
+    }
+
+    .error-message {
+        font-size: 16px;
+        max-width: 450px;
+        margin-bottom: 40px;
+        color: #9ca3af;
+    }
+
+    .btn-reload {
+        background: #fff;
+        color: #1a1c1e;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-container">
+        <h1 class="error-code">500</h1>
+        <h2 class="error-title">Hubo un pequeño derrumbe en el camino</h2>
+        <p class="error-message">Nuestros guías técnicos están trabajando para despejar la ruta. Por favor, intenta recargar la página en unos momentos.</p>
+        <button onclick="location.reload()" class="btn-reload">
+            <i class="ph ph-arrows-clockwise"></i> Reintentar
+        </button>
+    </div>
+</div>
+{% endblock %}

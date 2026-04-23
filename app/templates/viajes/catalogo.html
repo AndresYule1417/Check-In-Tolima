@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo de Viajes - Check-In Tolima{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+<style>
+    .catalog-header {
+        text-align: center;
+        height: 70vh;
+        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ url_for("static", filename="img/catalogo.png") }}');
+        background-size: cover;
+        background-position: center;
+        color: #fff;
+        margin-bottom: 48px;
+    }
+
+    .catalog-header h1 {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    .catalog-header p {
+        font-size: 18px;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .filters-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .search-input {
+        padding: 12px 16px;
+        border: 1px solid var(--borde);
+        border-radius: 8px;
+        width: 300px;
+        font-family: var(--font-body);
+    }
+
+    .filter-pills {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .pill {
+        padding: 8px 16px;
+        border: 1px solid var(--borde);
+        border-radius: 20px;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .pill:hover, .pill.active {
+        border-color: var(--verde-tolima);
+        background-color: rgba(44, 107, 58, 0.05);
+        color: var(--verde-tolima);
+    }
+
+    .grid-viajes {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 32px;
+        margin-bottom: 64px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalog-header">
+    <h1>Descubre el Tolima</h1>
+    <p>Aventuras increíbles, cultura vibrante y paisajes inolvidables te esperan. Encuentra tu próxima escapada.</p>
+</div>
+
+<div class="container">
+    <div class="filters-bar">
+        <div class="filter-pills">
+            <a href="{{ url_for('viajes.catalogo') }}" class="pill {% if not categoria_actual or categoria_actual == 'todos' %}active{% endif %}" style="text-decoration: none;">Todos</a>
+            <a href="{{ url_for('viajes.catalogo', categoria='aventura') }}" class="pill {% if categoria_actual == 'aventura' %}active{% endif %}" style="text-decoration: none;">Aventura</a>
+            <a href="{{ url_for('viajes.catalogo', categoria='naturaleza') }}" class="pill {% if categoria_actual == 'naturaleza' %}active{% endif %}" style="text-decoration: none;">Naturaleza</a>
+            <a href="{{ url_for('viajes.catalogo', categoria='cultura') }}" class="pill {% if categoria_actual == 'cultura' %}active{% endif %}" style="text-decoration: none;">Cultura</a>
+            <a href="{{ url_for('viajes.catalogo', categoria='descanso') }}" class="pill {% if categoria_actual == 'descanso' %}active{% endif %}" style="text-decoration: none;">Descanso</a>
+        </div>
+        <form action="{{ url_for('viajes.catalogo') }}" method="GET">
+            <input type="text" name="q" class="search-input" placeholder="Buscar destinos..." value="{{ request.args.get('q', '') }}">
+        </form>
+    </div>
+
+    <div class="grid-viajes">
+        {% for viaje in viajes %}
+        <a href="{{ url_for('viajes.detalle', id=viaje.id) }}" class="card-viaje">
+            <div class="card-img-wrapper">
+                <img src="{{ viaje.imagen_url }}" alt="{{ viaje.nombre }}" class="card-img">
+                {% if viaje.descuento_pct > 0 %}
+                <span class="badge badge-discount">-{{ viaje.descuento_pct }}%</span>
+                {% endif %}
+                <span class="badge badge-category">{{ viaje.categoria|capitalize }}</span>
+            </div>
+            
+            <div class="card-content">
+                <div class="card-header">
+                    <h3 class="card-title">{{ viaje.nombre }}</h3>
+                    <div class="card-rating">★ 4.9</div>
+                </div>
+                
+                <p class="card-desc">{{ viaje.descripcion|truncate(60) }}</p>
+                
+                <div class="card-footer">
+                    <div class="card-price">
+                        {% if viaje.descuento_pct > 0 %}
+                            <span class="price-old">${{ "{:,.0f}".format(viaje.precio) }}</span>
+                            <span class="price-new">${{ "{:,.0f}".format(viaje.precio * (100 - viaje.descuento_pct) / 100) }}</span>
+                        {% else %}
+                            <span class="price-new">${{ "{:,.0f}".format(viaje.precio) }}</span>
+                        {% endif %}
+                    </div>
+                    {% if viaje.cupos_disp <= 3 %}
+                        <span class="stock-warning">Solo {{ viaje.cupos_disp }} cupos</span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px; color: #666;">
+            <p>No hay viajes disponibles en este momento.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,306 @@
+{% extends "admin/layout.html" %}
+
+{% block header_title %}Gestión Maestra de Reservas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reservas-charts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .admin-stats-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .mini-card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .mini-card h4 { margin: 0; font-size: 12px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .mini-card .val { font-size: 24px; font-weight: 700; color: #111827; margin-top: 4px; display: block; }
+
+    .filter-section {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .search-input-group {
+        position: relative;
+        flex: 1;
+        max-width: 250px; /* Reducido para evitar solapamiento */
+    }
+
+    .search-input-group i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9CA3AF;
+        font-size: 18px;
+    }
+
+    .search-input-group input {
+        width: 100%;
+        padding: 12px 12px 12px 45px;
+        border: 1px solid #D1D5DB;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    .search-input-group input:focus {
+        border-color: var(--verde-tolima);
+        box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
+        outline: none;
+    }
+
+    .tab-filters {
+        display: flex;
+        gap: 8px;
+        padding: 4px;
+        background: #F3F4F6;
+        border-radius: 8px;
+    }
+
+    .tab-btn {
+        padding: 8px 16px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #4B5563;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .tab-btn.active {
+        background: #fff;
+        color: var(--verde-tolima);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Tabla Estilo Dashboard */
+    .table-container {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .reserva-table { width: 100%; border-collapse: collapse; }
+    .reserva-table th { background: #F9FAFB; padding: 14px 24px; text-align: left; font-size: 11px; font-weight: 700; color: #4B5563; text-transform: uppercase; border-bottom: 1px solid #E5E7EB; }
+    .reserva-table td { padding: 18px 24px; font-size: 14px; border-bottom: 1px solid #F3F4F6; vertical-align: middle; }
+    .reserva-table tr:last-child td { border-bottom: none; }
+    .reserva-table tr:hover { background: #F9FAFB; }
+
+    .action-group { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-icon {
+        width: 36px; height: 36px; border-radius: 8px; border: 1px solid #E5E7EB; background: #fff;
+        display: flex; align-items: center; justify-content: center; color: #4B5563; cursor: pointer; transition: 0.2s;
+        text-decoration: none;
+    }
+    .btn-icon:hover { background: #F3F4F6; color: var(--verde-tolima); border-color: var(--verde-tolima); }
+    .btn-icon.delete:hover { background: #FEF2F2; color: #DC2626; border-color: #FCA5A5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Gráficas de Reservas -->
+<div class="reservas-charts">
+    <div class="mini-card" style="padding: 24px;">
+        <h4 style="margin-bottom: 16px;"><i class="ph ph-chart-bar"></i> Volumen Operativo</h4>
+        <div style="height: 180px;">
+            <canvas id="operativoChart"></canvas>
+        </div>
+    </div>
+    <div class="mini-card" style="padding: 24px;">
+        <h4 style="margin-bottom: 16px;"><i class="ph ph-chart-pie-slice"></i> Distribución de Estados</h4>
+        <div style="height: 180px;">
+            <canvas id="estadosChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Resumen rápido de la sección -->
+<div class="admin-stats-summary">
+    <div class="mini-card">
+        <h4>Total Reservas</h4>
+        <span class="val">{{ reservas|length }}</span>
+    </div>
+    <div class="mini-card">
+        <h4>Por Confirmar</h4>
+        <span class="val" style="color: var(--miel-dorado);">{{ stats_operativas[1] }}</span>
+    </div>
+    <div class="mini-card">
+        <h4>Registradas Hoy</h4>
+        <span class="val" style="color: var(--verde-tolima);">+{{ stats_operativas[2] }}</span>
+    </div>
+</div>
+
+<!-- Filtros y Búsqueda -->
+<div class="filter-section">
+    <div class="search-input-group">
+        <i class="ph ph-magnifying-glass"></i>
+        <input type="text" id="reservaSearch" placeholder="Buscar por referencia..." onkeyup="filterReservas()">
+    </div>
+    
+    <div class="tab-filters">
+        <button class="tab-btn active" onclick="filterByStatus('all')">Todas</button>
+        <button class="tab-btn" onclick="filterByStatus('pendiente')">Pendientes</button>
+        <button class="tab-btn" onclick="filterByStatus('confirmada')">Confirmadas</button>
+        <button class="tab-btn" onclick="filterByStatus('cancelada')">Canceladas</button>
+    </div>
+</div>
+
+<!-- Tabla Principal -->
+<div class="table-container">
+    <table class="reserva-table">
+        <thead>
+            <tr>
+                <th>REF / ID</th>
+                <th>Cliente</th>
+                <th>Destino / Fecha</th>
+                <th>Pax</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th style="text-align: right;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="reservasTable">
+            {% for r in reservas %}
+            <tr class="reserva-row" data-status="{{ r.estado }}" data-search="{{ r.codigo_ref|lower }} {{ r.usuario.nombre|lower }} {{ r.viaje.nombre|lower }}">
+                <td style="font-family: monospace; font-weight: 700; color: #111827;">{{ r.codigo_ref }}</td>
+                <td>
+                    <div style="font-weight: 600; color: #111827;">{{ r.usuario.nombre }}</div>
+                    <div style="font-size: 12px; color: #6B7280;">{{ r.usuario.correo }}</div>
+                </td>
+                <td>
+                    <div style="font-weight: 500;">{{ r.viaje.nombre }}</div>
+                    <div style="font-size: 12px; color: #6B7280;"><i class="ph ph-calendar"></i> {{ r.fecha_viaje.strftime('%d/%m/%Y') }}</div>
+                </td>
+                <td><span style="background: #F3F4F6; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ r.num_personas }} Pax</span></td>
+                <td style="font-weight: 700; color: #111827;">${{ "{:,.0f}".format(r.total) }}</td>
+                <td>
+                    <span style="font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-block;
+                        {% if r.estado == 'pendiente' %}background: #FEF3C7; color: #92400E;
+                        {% elif r.estado == 'confirmada' %}background: #D1FAE5; color: #065F46;
+                        {% elif r.estado == 'cancelada' %}background: #FEE2E2; color: #991B1B;
+                        {% elif r.estado == 'completada' %}background: #DBEAFE; color: #1E40AF;{% endif %}
+                    ">
+                        {{ r.estado | upper }}
+                    </span>
+                </td>
+                <td>
+                    <div class="action-group">
+                        <form action="{{ url_for('admin.reenviar_confirmacion', id=r.id) }}" method="POST">
+                            <button type="submit" class="btn-icon" title="Reenviar Factura">
+                                <i class="ph-bold ph-paper-plane-tilt"></i>
+                            </button>
+                        </form>
+                        <a href="{{ url_for('admin.editar_reserva', id=r.id) }}" class="btn-icon" title="Editar">
+                            <i class="ph-bold ph-pencil-simple"></i>
+                        </a>
+                        <form action="{{ url_for('admin.eliminar_reserva', id=r.id) }}" method="POST" onsubmit="return confirm('¿Borrar definitivamente?');">
+                            <button type="submit" class="btn-icon delete" title="Eliminar">
+                                <i class="ph-bold ph-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Gráfica 1: Volumen Operativo (Total, Por Confirmar, Hoy)
+    const ctxOp = document.getElementById('operativoChart').getContext('2d');
+    new Chart(ctxOp, {
+        type: 'bar',
+        data: {
+            labels: ['Total', 'Por Confirmar', 'Hoy'],
+            datasets: [{
+                data: {{ stats_operativas | tojson }},
+                backgroundColor: ['#3B82F6', '#F59E0B', '#10B981'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { display: false } } }
+        }
+    });
+
+    // Gráfica 2: Estados (Todas, Pendientes, Confirmadas, Canceladas)
+    const ctxEst = document.getElementById('estadosChart').getContext('2d');
+    new Chart(ctxEst, {
+        type: 'doughnut',
+        data: {
+            labels: ['Total', 'Pendientes', 'Confirmadas', 'Canceladas', 'Completadas'],
+            datasets: [{
+                data: {{ stats_estados | tojson }},
+                backgroundColor: ['#6B7280', '#F59E0B', '#10B981', '#EF4444', '#3B82F6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } },
+            cutout: '65%'
+        }
+    });
+
+    function filterReservas() {
+        const input = document.getElementById('reservaSearch');
+        const filter = input.value.toLowerCase();
+        const rows = document.querySelectorAll('.reserva-row');
+
+        rows.forEach(row => {
+            const searchText = row.getAttribute('data-search');
+            row.style.display = searchText.includes(filter) ? '' : 'none';
+        });
+    }
+
+    function filterByStatus(status) {
+        const rows = document.querySelectorAll('.reserva-row');
+        const buttons = document.querySelectorAll('.tab-btn');
+
+        buttons.forEach(btn => {
+            if (btn.innerText.toLowerCase().includes(status) || (status === 'all' && btn.innerText === 'Todas')) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            row.style.display = (status === 'all' || rowStatus === status) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

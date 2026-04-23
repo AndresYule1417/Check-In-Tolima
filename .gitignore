@@ -1,0 +1,24 @@
+# Flask / Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Base de Datos
+*.db
+*.sqlite3
+
+# Secretos y Configuración (MUY IMPORTANTE)
+.env
+.flaskenv
+
+# Archivos de Sistema
+.DS_Store
+Thumbs.db
+
+# Subidas de usuarios (Avatar/Imágenes)
+app/static/uploads/*
+!app/static/uploads/.gitkeep
